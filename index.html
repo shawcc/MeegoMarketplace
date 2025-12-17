@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>应用中心 - 多布局演示版</title>
+    <title>应用中心 - 全量真实数据版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
@@ -25,7 +25,7 @@
     <div id="root"></div>
 
     <script type="text/babel">
-        // 显式引用全局变量，解决 ReferenceError
+        // 显式引用全局变量
         const React = window.React;
         const ReactDOM = window.ReactDOM;
         const { useState, useEffect } = React;
@@ -46,37 +46,140 @@
             { id: 'plugin', label: '插件', icon: 'fa-plug' }
         ];
 
-        const CAMPAIGNS = [
-            {
-                id: 1,
-                title: '⚡️ 2025 开工效能加速包',
-                desc: '精选 5 款插件与 3 套模板，帮助团队快速从假期模式切换回战斗状态。',
-                btnText: '查看专题',
-                bgClass: 'bg-gradient-to-r from-blue-600 to-indigo-600',
-                icon: 'fa-bolt'
-            }
-        ];
-
+        // --- 全量真实数据注入 (基于用户提供的完整列表 + 扩充长描述) ---
         const ALL_RESOURCES = [
-            { id: 1, title: '敏捷研发全流程套件', category: 'dev', type: 'solution', desc: '需求管理+燃尽图+Gitlab集成', price: '¥299/月', users: 1240, color: 'bg-blue-600', tag: '官方推荐' },
-            { id: 2, title: 'OKR 目标管理系统', category: 'hr', type: 'solution', desc: '对齐插件+周报生成+会议模板', price: '免费试用', users: 850, color: 'bg-emerald-600', tag: '热门' },
-            { id: 101, title: 'Figma 设计稿实时预览', category: 'dev', type: 'plugin', icon: 'fa-figma', installs: '2k+', author: 'Figma Inc' },
-            { id: 102, title: '工时自动统计报表', category: 'hr', type: 'plugin', icon: 'fa-clock', installs: '5k+', author: 'TimeMaster' },
-            { id: 103, title: 'CRM 客户漏斗视图', category: 'sales', type: 'plugin', icon: 'fa-filter', installs: '1.2k', author: 'SalesPro' },
-            { id: 104, title: '飞书/钉钉消息通知', category: 'dev', type: 'plugin', icon: 'fa-bell', installs: '8k+', author: 'NotificationBot' },
-            { id: 201, title: '2025 年度营销活动规划表', category: 'marketing', type: 'template', author: '市场部老张' },
-            { id: 202, title: 'Scrum 迭代冲刺看板', category: 'dev', type: 'template', author: '官方实验室' },
-            { id: 203, title: '新员工入职培训流程', category: 'hr', type: 'template', author: 'HRBP联盟' },
-            { id: 204, title: '大客户跟进记录表', category: 'sales', type: 'template', author: '销售冠军' },
-            { id: 205, title: '产品路线图 (Roadmap)', category: 'dev', type: 'template', author: '官方实验室' },
-            { id: 206, title: '内容矩阵发布计划', category: 'marketing', type: 'template', author: '运营小助手' },
-            { id: 207, title: '季度OKR复盘会议纪要', category: 'hr', type: 'template', author: 'HRBP联盟' },
-            { id: 208, title: 'Bug 追踪与分级模板', category: 'dev', type: 'template', author: '测试团队' },
+            // === 解决方案 (Solutions) ===
+            { id: 'sol-01', title: 'Zadig DevOps 一体化解决方案', category: 'dev', type: 'solution', desc: '端到端的持续交付与自动化运维平台，打通开发、测试到运维的墙壁，实现分钟级代码构建与部署，显著提升研发效能。', price: '¥599/月', users: 2100, color: 'bg-blue-600', tag: '热门' },
+            { id: 'sol-02', title: '规模化敏捷 (SAFe) 解决方案', category: 'dev', type: 'solution', desc: '专为大型企业设计的敏捷转型框架，协调多团队、多层级的协作与价值交付，确保企业战略与执行的一致性。', price: '¥899/月', users: 540, color: 'bg-indigo-600', tag: '企业版' },
+            { id: 'sol-03', title: '翼云销 LTC 解决方案', category: 'sales', type: 'solution', desc: '提供从线索挖掘、商机管理、合同签订到回款核销的全流程销售管理闭环，帮助企业提升销售转化率与资金周转速度。', price: '¥399/月', users: 1200, color: 'bg-orange-500', tag: '官方推荐' },
+            { id: 'sol-04', title: 'ASPICE 汽车软件合规方案', category: 'dev', type: 'solution', desc: '严格遵循汽车行业 ASPICE 标准的研发过程管理方案，内置标准模板与审核流，助力车企轻松通过主机厂合规审计。', price: '咨询报价', users: 300, color: 'bg-slate-700', tag: '行业合规' },
+            { id: 'sol-05', title: '业财协同一体化解决方案', category: 'sales', type: 'solution', desc: '打破业务与财务数据孤岛，实现合同、发票、回款的自动对账与即时成本核算，让财务数据实时反映业务状况。', price: '¥499/月', users: 800, color: 'bg-emerald-600' },
+            { id: 'sol-06', title: '工时资源管理套件', category: 'hr', type: 'solution', desc: '实现精细化的人力资源效能与工时成本分析，自动计算项目人天投入与ROI，为资源分配提供科学依据。', price: '¥199/月', users: 3500, color: 'bg-teal-500' },
+            { id: 'sol-07', title: '客户反馈管理全流程数字化', category: 'marketing', type: 'solution', desc: '构建全渠道声音采集与闭环处理系统，自动化分类与分发客户反馈，有效提升客户满意度（CSAT）与推荐值（NPS）。', price: '¥299/月', users: 920, color: 'bg-purple-500' },
+            { id: 'sol-08', title: 'Jira 数据迁移方案', category: 'dev', type: 'solution', desc: '提供一键式工具，将 Jira 中的任务、缺陷、附件及关联关系无损迁移至本平台，确保团队切换工具零负担。', price: '免费', users: 4500, color: 'bg-blue-500', tag: '工具' },
+            { id: 'sol-09', title: '精益价值流管理 (VSM)', category: 'dev', type: 'solution', desc: '通过可视化价值流图，识别研发过程中的瓶颈与浪费，持续改进交付效率，实现从需求到上线的极致缩短。', price: '¥699/月', users: 210, color: 'bg-rose-600' },
+            { id: 'sol-10', title: '文件资源管理中心', category: 'hr', type: 'solution', desc: '构建企业级知识库与数字资产管理中心，支持细粒度的权限控制、版本追溯与在线预览，保障企业知识资产安全。', price: '¥159/月', users: 1800, color: 'bg-cyan-600' },
+            { id: 'sol-11', title: '战略落地管理解决方案', category: 'hr', type: 'solution', desc: '打通从战略解码、目标拆解、任务执行到结果复盘的完整链路，通过可视化仪表盘确保企业战略高效落地不走样。', price: '咨询报价', users: 150, color: 'bg-slate-800', tag: '高层管理' },
+
+            // === 插件 (Plugins) ===
+            { id: 'plug-01', title: '工时管理插件', category: 'hr', type: 'plugin', desc: '嵌入任务面板，自动记录任务耗时，支持一键生成个人周报与团队工时统计报表。', icon: 'fa-clock', installs: '12k', author: 'TimeTrack' },
+            { id: 'plug-02', title: 'Tab页面打开 AccountPlan', category: 'sales', type: 'plugin', desc: '支持在独立标签页中快速访问大客户计划（Account Plan），方便销售人员同时处理多个客户事务。', icon: 'fa-external-link-alt', installs: '3k', author: 'SalesForce' },
+            { id: 'plug-03', title: '客户画像匹配插件', category: 'sales', type: 'plugin', desc: '基于 AI 大数据自动补全客户画像信息，智能识别高潜客户特征，辅助销售精准拓客。', icon: 'fa-id-card', installs: '5k', author: 'DataInsight' },
+            { id: 'plug-04', title: '解决方案智能推荐', category: 'marketing', type: 'plugin', desc: '根据客户输入的业务需求描述，利用 NLP 技术智能推荐最匹配的产品解决方案与案例。', icon: 'fa-lightbulb', installs: '2.1k', author: 'AI Lab' },
+            { id: 'plug-05', title: '跟进记录评分插件', category: 'sales', type: 'plugin', desc: '自动分析销售跟进记录的完整性与有效性，实时给出改进建议与质量评分，提升销售执行力。', icon: 'fa-star-half-alt', installs: '4.5k', author: 'QualityCheck' },
+            { id: 'plug-06', title: '合同审核建议助手', category: 'sales', type: 'plugin', desc: '智能识别合同中的风险条款与非标内容，提供标准法务修改建议，降低企业法律风险。', icon: 'fa-file-contract', installs: '1.8k', author: 'LegalTech' },
+            { id: 'plug-07', title: '企业工商信息补全', category: 'sales', type: 'plugin', desc: '对接权威工商数据库，一键拉取并自动填充客户的企业名称、法人、注册资金等档案信息。', icon: 'fa-building', installs: '8k+', author: 'QiChaCha' },
+            { id: 'plug-08', title: '线索质量评分插件', category: 'sales', type: 'plugin', desc: '建立多维度评分模型，预测线索转化概率，帮助销售团队优先处理高价值线索，优化资源分配。', icon: 'fa-tachometer-alt', installs: '3.2k', author: 'LeadScore' },
+            { id: 'plug-09', title: '合同解析插件', category: 'sales', type: 'plugin', desc: '利用 OCR 技术快速识别合同文件中的关键要素，自动录入系统字段，减少人工录入错误。', icon: 'fa-file-signature', installs: '1.5k', author: 'OCR Pro' },
+            { id: 'plug-10', title: '产品全生命周期管理 (PLM)', category: 'dev', type: 'plugin', desc: '深度集成 PLM 系统，连接设计与制造，统一管理产品数据、BOM 结构与工程变更流程。', icon: 'fa-infinity', installs: '6k', author: 'DevSuite' },
+            { id: 'plug-11', title: '组织架构插件', category: 'hr', type: 'plugin', desc: '实时同步企业微信、飞书或钉钉的组织架构与人员信息，保持系统内通讯录的实时准确。', icon: 'fa-sitemap', installs: '9k', author: 'HR Connect' },
+            { id: 'plug-12', title: '地图插件', category: 'marketing', type: 'plugin', desc: '在交互式地图上可视化展示客户分布、门店位置与市场覆盖情况，辅助市场决策。', icon: 'fa-map-marked-alt', installs: '4k', author: 'GeoMap' },
+            { id: 'plug-13', title: 'AP文档打开插件', category: 'dev', type: 'plugin', desc: '支持在系统内直接预览和编辑各类格式的技术文档（AP文档）、图纸与代码文件。', icon: 'fa-file-code', installs: '2.5k', author: 'DocView' },
+            { id: 'plug-14', title: '合同审核插件', category: 'sales', type: 'plugin', desc: '自动化检查合同内容是否符合公司最新的合规政策与审计要求，提高审批通过率。', icon: 'fa-gavel', installs: '1.2k', author: 'Compliance' },
+            { id: 'plug-15', title: '客户画像插件', category: 'sales', type: 'plugin', desc: '聚合全渠道交互数据，生成客户 360 度全景画像，展示客户全方位的动态视图与偏好。', icon: 'fa-user-circle', installs: '3.8k', author: 'CRM Plus' },
+            { id: 'plug-16', title: '舆情洞察插件', category: 'marketing', type: 'plugin', desc: '全网监控品牌相关关键词，及时预警负面舆情，并生成舆情分析报告，守护品牌声誉。', icon: 'fa-globe', installs: '1.1k', author: 'MediaWatch' },
+            { id: 'plug-17', title: '战略落地管理引擎', category: 'hr', type: 'plugin', desc: '核心引擎插件，将高层战略目标自动拆解为各部门可执行的关键任务，并实时追踪进度。', icon: 'fa-chess', installs: '500+', author: 'StrategyEngine' },
+            { id: 'plug-18', title: 'ASPICE 插件', category: 'dev', type: 'plugin', desc: '为研发项目提供符合 ASPICE 标准的流程模板、检查单与质量度量工具，辅助过程合规。', icon: 'fa-car', installs: '900+', author: 'AutoDev' },
+
+            // === 模板 (Templates) - 大量补充 ===
+            // --- 研发与制造 (Dev) ---
+            { id: 'tpl-d01', title: '整车研发全流程管理', category: 'dev', type: 'template', desc: '覆盖从整车定义、造型设计、工程开发、验证测试到最终量产上市的全生命周期管理流程，助力车企缩短研发周期。', author: '汽车研究院' },
+            { id: 'tpl-d02', title: '汽车软件开发', category: 'dev', type: 'template', desc: '符合汽车行业标准的嵌入式软件开发流程模板，包含需求定义、架构设计、代码实现到单元测试的完整闭环。', author: 'AutoDev' },
+            { id: 'tpl-d03', title: '汽车产业链研发-系统工程项目APQP', category: 'dev', type: 'template', desc: '基于 APQP 的系统工程项目管理模板，确保产品质量先期策划的有效实施，满足主机厂严苛要求。', author: '质量管理部' },
+            { id: 'tpl-d04', title: '零部件企业研发项目(APQP)', category: 'dev', type: 'template', desc: '专为汽车零部件供应商设计的研发项目管理标准，集成风险管理与质量控制节点。', author: '供应链管理' },
+            { id: 'tpl-d05', title: '机器人产品研发', category: 'dev', type: 'template', desc: '包含软硬件协同开发、算法迭代与样机测试的机器人产品研发管理流程，适应快速迭代需求。', author: 'RoboTech' },
+            { id: 'tpl-d06', title: '消费电子硬件开发', category: 'dev', type: 'template', desc: '规范消费电子产品的硬件 ID 设计、堆叠设计、打样验证与试产流程，降低硬件开发风险。', author: '硬件交付中心' },
+            { id: 'tpl-d07', title: '芯片设计-产品开发', category: 'dev', type: 'template', desc: '涵盖从规格定义、RTL设计、验证、物理设计到流片的芯片设计全流程管理模板。', author: 'IC Design' },
+            { id: 'tpl-d08', title: '消费电子IPD项目管理', category: 'dev', type: 'template', desc: '集成产品开发（IPD）在消费电子领域的最佳实践模板，强调市场驱动与跨部门协作。', author: 'IPD 专家' },
+            { id: 'tpl-d09', title: '飞书项目具身智能IPD标准典范', category: 'dev', type: 'template', desc: '结合飞书高效协作特性的具身智能研发管理标杆，适用于高科技硬软结合项目。', author: '官方实验室' },
+            { id: 'tpl-d10', title: '软件研发管理', category: 'dev', type: 'template', desc: '通用的敏捷软件开发项目管理模板，包含迭代规划、需求跟踪、缺陷管理与发布管理。', author: 'PMO' },
+            { id: 'tpl-d11', title: '互联网金融软件研发', category: 'dev', type: 'template', desc: '严格满足金融行业合规、安全审计与风险控制要求的软件研发全流程模板。', author: 'FinTech 组' },
+            { id: 'tpl-d12', title: 'Agile Development', category: 'dev', type: 'template', desc: '标准的 Scrum 敏捷开发流程模板，预置看板、冲刺待办列表与燃尽图配置。', author: 'Scrum Master' },
+            { id: 'tpl-d13', title: 'SAFe规模化敏捷管理', category: 'dev', type: 'template', desc: '适用于大型组织的多团队协作规模化敏捷管理模板，包含 ART（敏捷发布列车）规划与管理。', author: '敏捷教练' },
+            { id: 'tpl-d14', title: '整车法规认证', category: 'dev', type: 'template', desc: '汽车产品全生命周期的法规认证与合规性评估流程，确保产品符合各国准入标准。', author: '合规部' },
+            { id: 'tpl-d15', title: '硬件ITR处理', category: 'dev', type: 'template', desc: '从问题发现（Issue）到解决（Resolution）的技术问题闭环处理流程，提升售后响应速度。', author: '售后技术' },
+            { id: 'tpl-d16', title: '整车质量问题管理', category: 'dev', type: 'template', desc: '基于 8D 方法论的整车质量问题分析与解决模板，实现问题闭环与经验沉淀。', author: '质量部' },
+            { id: 'tpl-d17', title: '游戏研发全流程demo空间', category: 'dev', type: 'template', desc: '包含策划、美术、程序多工种协作的游戏研发全流程演示空间，开箱即用。', author: 'GameStudio' },
+            { id: 'tpl-d18', title: '医药研发全流程', category: 'dev', type: 'template', desc: '严格符合 GxP 规范的药物研发项目管理模板，涵盖临床前研究到上市申报全过程。', author: '医药研发部' },
+            { id: 'tpl-d19', title: '机器人交互智能研发', category: 'dev', type: 'template', desc: '专注于人机交互体验与智能算法迭代的研发流程，强化用户体验测试环节。', author: 'AI 交互组' },
+            { id: 'tpl-d20', title: '医械研发项目管理', category: 'dev', type: 'template', desc: '医疗器械产品设计开发、验证确认与注册申报全流程管理，符合 ISO13485 标准。', author: 'MedTech' },
+            { id: 'tpl-d21', title: '私有化版本制作和交付流程', category: 'dev', type: 'template', desc: '针对企业级客户的私有化软件版本定制、打包、测试与交付的标准化作业流程。', author: '交付团队' },
+            { id: 'tpl-d22', title: '软硬一体产品项目', category: 'dev', type: 'template', desc: '解决软件迭代快与硬件迭代慢的节奏冲突，实现软硬件协同开发的项目管理模板。', author: 'IoT 事业部' },
+            { id: 'tpl-d23', title: 'Agile敏捷开发流程', category: 'dev', type: 'template', desc: '轻量级的敏捷开发流程，适合初创团队快速上手，包含迭代回顾与每日站会模板。', author: '敏捷社区' },
+            { id: 'tpl-d24', title: 'Zadig DevOps 一体化', category: 'dev', type: 'template', desc: '预置 DevOps 流水线配置的研发管理模板，实现代码提交即触发构建测试。', author: 'DevOps 专家' },
+            { id: 'tpl-d25', title: '金融研发一体化空间', category: 'dev', type: 'template', desc: '集成了需求管理、开发任务与质量管理的金融行业研发一体化协作空间。', author: '金融科技部' },
+            { id: 'tpl-d26', title: '游戏研发场景', category: 'dev', type: 'template', desc: '针对游戏行业特点定制的研发场景模板，包含版本管理与美术资产审核流。', author: '游戏制作人' },
+            { id: 'tpl-d27', title: '硬件反馈处理流程', category: 'dev', type: 'template', desc: '规范硬件产品上市后的用户反馈收集、技术分析与工程变更（ECO）处理流程。', author: '硬件质量部' },
+            { id: 'tpl-d28', title: '金融稳敏一体产研空间', category: 'dev', type: 'template', desc: '兼顾稳态业务（核心系统）与敏态业务（互联网应用）的双模研发管理模板。', author: '银行科技部' },
+            { id: 'tpl-d29', title: '需求端到端拆解管理', category: 'dev', type: 'template', desc: '从原始需求、业务需求、功能需求到技术实现任务的端到端拆解与追踪模板。', author: '需求分析师' },
+            { id: 'tpl-d30', title: '玩具新品制造管理', category: 'dev', type: 'template', desc: '玩具行业的创意设计、模具开发、安全认证与生产制造全流程管理。', author: '玩具制造协会' },
+            { id: 'tpl-d31', title: '化妆品新品研发', category: 'dev', type: 'template', desc: '化妆品配方研发、包材设计、备案检测与试产上市的周期管理模板。', author: '美妆研发部' },
+            { id: 'tpl-d32', title: '消费电子开发流程', category: 'dev', type: 'template', desc: '标准的消费电子产品 NPI（新产品导入）流程，确保量产爬坡顺利。', author: 'NPI 经理' },
+
+            // --- 销售与LTC (Sales) ---
+            { id: 'tpl-s01', title: '通信行业LTC', category: 'sales', type: 'template', desc: '通信设备行业复杂的线索到现金全流程，包含招投标管理与交付验收环节。', author: '通信销售组' },
+            { id: 'tpl-s02', title: '软件企服LTC全流程管理', category: 'sales', type: 'template', desc: 'B2B 软件与企业服务行业的销售管理标准，强化 SaaS 订阅与续费管理。', author: 'SaaS 销售' },
+            { id: 'tpl-s03', title: '汽车产业链LTC', category: 'sales', type: 'template', desc: '适配汽车供应链长周期特点的销售业务流程，包含定点信（Nomination）管理。', author: '汽车销售部' },
+            { id: 'tpl-s04', title: '消费品行业LTC', category: 'sales', type: 'template', desc: '快速消费品行业的深度分销、渠道管理与订单履约全流程模板。', author: 'FMCG 销售' },
+            { id: 'tpl-s05', title: '能源行业LTC', category: 'sales', type: 'template', desc: '大型能源项目销售流程，涵盖前期勘探、方案设计、合同谈判与工程交付。', author: '能源事业部' },
+            { id: 'tpl-s06', title: 'CRM客户管理空间', category: 'sales', type: 'template', desc: '轻量级、易上手的客户关系管理模板，包含客户档案、联系人与跟进记录。', author: '客户成功部' },
+            { id: 'tpl-s07', title: '门店加盟与建设', category: 'sales', type: 'template', desc: '连锁品牌门店从加盟申请、选址审核、签约到装修开业的标准化筹建流程。', author: '零售管理' },
+            { id: 'tpl-s08', title: '商超门店管理', category: 'sales', type: 'template', desc: '商超日常运营管理模板，包含店务巡检、库存盘点、促销执行与人员排班。', author: '连锁运营' },
+            { id: 'tpl-s09', title: '消费电子IPD+LTC', category: 'sales', type: 'template', desc: '打通研发（IPD）与销售（LTC）的端到端业务流程，实现研销协同。', author: 'IPD 咨询顾问' },
+            { id: 'tpl-s10', title: 'TZ-项目与客户管理Demo', category: 'sales', type: 'template', desc: '以项目为核心的销售管理演示模板，适合工程、咨询等项目型销售场景。', author: 'Demo 团队' },
+            { id: 'tpl-s11', title: 'LTC全流程管理', category: 'sales', type: 'template', desc: '通用的线索到现金全流程管理模板，适用于大多数 B2B 企业的销售业务。', author: '销售运营' },
+            { id: 'tpl-s12', title: '软件项目交付 OTD', category: 'sales', type: 'template', desc: '从订单签约到交付验收（Order to Delivery）的软件交付管理流程。', author: '交付总监' },
+            { id: 'tpl-s13', title: '硬件新品项目交付OTD', category: 'sales', type: 'template', desc: '硬件产品从接单、生产计划、制造到发货物流的交付履约管理。', author: '供应链交付' },
+            { id: 'tpl-s14', title: '硬件实施交付管理', category: 'sales', type: 'template', desc: '涉及现场安装调试的硬件设备实施交付流程，包含现场验收签字环节。', author: '实施团队' },
+            { id: 'tpl-s15', title: '商超门店筹建', category: 'sales', type: 'template', desc: '大型商超从立项、选址、证照办理到开业筹备的项目化管理流程。', author: '开店专家' },
+            { id: 'tpl-s16', title: '合作型工程项目交付', category: 'sales', type: 'template', desc: '涉及多方合作伙伴的工程项目交付管理，强化分包商管理与进度协同。', author: '项目交付部' },
+            { id: 'tpl-s17', title: '制造业下单交付流程', category: 'sales', type: 'template', desc: '连接销售订单与生产计划的下单交付流程，确保交期承诺准确可达。', author: '计划物控' },
+
+            // --- 市场与内容 (Marketing) ---
+            { id: 'tpl-m01', title: '短视频制作全流程', category: 'marketing', type: 'template', desc: '包含选题策划、脚本撰写、拍摄制作、剪辑包装到分发推广的短视频 SOP。', author: '新媒体运营' },
+            { id: 'tpl-m02', title: '短剧内容制作发行管理', category: 'marketing', type: 'template', desc: '短剧项目的剧本开发、选角、拍摄制作、后期特效与平台发行全流程管理。', author: '内容影业' },
+            { id: 'tpl-m03', title: '直播综合管理', category: 'marketing', type: 'template', desc: '直播间的排期管理、货盘选品、场控流程、流量投放与数据复盘模板。', author: '直播运营' },
+            { id: 'tpl-m04', title: '创作者运营中心', category: 'marketing', type: 'template', desc: 'MCN 机构对签约创作者的招募、孵化、内容审核与商业化结算管理模板。', author: 'KOL 管理' },
+            { id: 'tpl-m05', title: '通用内容制作全流程', category: 'marketing', type: 'template', desc: '适用于公众号、知乎、小红书等各类图文与多媒体内容生产的协作流程。', author: '内容中台' },
+            { id: 'tpl-m06', title: 'IPMS整合营销管理', category: 'marketing', type: 'template', desc: '集成产品营销策略（IPMS）落地模板，确保产品上市的营销活动与研发节奏对齐。', author: '品牌市场部' },
+            { id: 'tpl-m07', title: '消费新品推广空间', category: 'marketing', type: 'template', desc: '消费类新品上市发布会的策划、预热传播、活动执行与效果评估管理。', author: 'GTM 团队' },
+            { id: 'tpl-m08', title: '美妆行业新品研发与上市', category: 'marketing', type: 'template', desc: '美妆产品从概念孵化、配方研发到上市推广的营销与研发深度协同模板。', author: '美妆事业部' },
+            { id: 'tpl-m09', title: '市场声音反馈管理', category: 'marketing', type: 'template', desc: '系统化收集、分析与处理来自市场的客户声音（VOC），驱动产品改进。', author: 'VOC 小组' },
+            { id: 'tpl-m10', title: '游戏发行管理', category: 'marketing', type: 'template', desc: '游戏产品上线前的封测、预注册、买量投放素材制作与渠道发行管理。', author: '发行制作人' },
+            { id: 'tpl-m11', title: '游戏广告本地化配音', category: 'marketing', type: 'template', desc: '针对海外市场的游戏广告素材本地化翻译、配音选角与制作流程。', author: '本地化团队' },
+            { id: 'tpl-m12', title: '设计工作室管理', category: 'marketing', type: 'template', desc: '创意设计团队的需求接收、创意评审、排期管理与设计交付归档模板。', author: 'DesignOps' },
+            { id: 'tpl-m13', title: '消费品营销管理', category: 'marketing', type: 'template', desc: '快消品年度营销日历、品牌活动策划、终端陈列与促销活动管理模板。', author: '营销总监' },
+            { id: 'tpl-m14', title: '音乐制作流程', category: 'marketing', type: 'template', desc: '音乐单曲或专辑的词曲创作、编曲录音、混音母带与发行版权管理。', author: '音乐制作部' },
+            { id: 'tpl-m15', title: '短剧业务空间', category: 'marketing', type: 'template', desc: '涵盖短剧项目立项、投流ROI分析与分账结算的业务经营管理空间。', author: '短剧工作室' },
+            { id: 'tpl-m16', title: '事件反馈管理', category: 'marketing', type: 'template', desc: '突发市场公关事件的监测、分级、响应预案与处置结果记录模板。', author: '公关部' },
+
+            // --- 人事、行政与综合 (HR/General) ---
+            { id: 'tpl-h01', title: '战略到执行 (DSTE)', category: 'hr', type: 'template', desc: '企业年度战略规划（SP）、年度经营计划（BP）到执行落地的全流程管理。', author: '战略办' },
+            { id: 'tpl-h02', title: 'DSTE流程数字化落地', category: 'hr', type: 'template', desc: '利用数字化工具支撑战略解码、目标拆解与执行监控，确保战略不落空。', author: '战略办' },
+            { id: 'tpl-h03', title: '资源管理', category: 'hr', type: 'template', desc: '企业人力资源、设备资源与预算资金的申请、审批、分配与利用率分析。', author: 'PMO' },
+            { id: 'tpl-h04', title: '费用管理', category: 'hr', type: 'template', desc: '差旅费、采购费、招待费等企业日常费用的申请、审批与报销归档流程。', author: '财务部' },
+            { id: 'tpl-h05', title: '人生发展系统', category: 'hr', type: 'template', desc: '用于个人目标管理、习惯养成、知识沉淀与年度成长复盘的个人管理系统。', author: '个人成长' },
+            { id: 'tpl-h06', title: '央国企督办管理', category: 'hr', type: 'template', desc: '符合央国企公文流转规范的重点事项督办、领导批示件办理与反馈模板。', author: '总经办' },
+            { id: 'tpl-h07', title: '央国企审计项目管理', category: 'hr', type: 'template', desc: '内部审计项目的年度计划、现场实施、审计底稿管理与整改追踪流程。', author: '审计部' },
+            { id: 'tpl-h08', title: '通用比赛流程管理', category: 'hr', type: 'template', desc: '各类企业内部或外部赛事活动的选手报名、作品初筛、专家评审与颁奖流程。', author: '赛事组委会' },
+            { id: 'tpl-h09', title: '学科赛事管理场景', category: 'hr', type: 'template', desc: '学校或教育机构举办的学科竞赛组织管理，包含考场安排与成绩录入。', author: '教育事业部' },
+            { id: 'tpl-h10', title: '产能建设类项目管理', category: 'hr', type: 'template', desc: '工厂扩建、产线升级、设备引进等重资产产能建设项目的工程管理。', author: '基建部' },
+            { id: 'tpl-h11', title: '建筑工程管理', category: 'hr', type: 'template', desc: '建筑施工项目的进度计划、质量安全检查、物资材料管理与工程资料归档。', author: '工程部' },
+            { id: 'tpl-h12', title: '供应商SQE协同解决方案', category: 'hr', type: 'template', desc: '供应商质量工程师（SQE）与供应商的质量协同、审核与绩效考核流程。', author: '采购部' },
+            { id: 'tpl-h13', title: '能源项目流程管理', category: 'hr', type: 'template', desc: '电力、石油等能源行业的大型工程项目全生命周期管理，强调安全与合规。', author: '能源工程部' },
+            { id: 'tpl-h14', title: '督办管理', category: 'hr', type: 'template', desc: '企业行政督办管理，对会议决议、领导交办事项的执行情况进行跟踪与考核。', author: '行政部' },
+            { id: 'tpl-h15', title: 'Roadmap管理', category: 'hr', type: 'template', desc: '产品或项目的路线图规划管理，可视化展示里程碑与关键交付节点。', author: '产品委员会' },
+            { id: 'tpl-h16', title: '金融投资项目管理', category: 'hr', type: 'template', desc: '金融投资项目的投前尽调、投决审批、投后管理与退出全流程管理。', author: '投资部' },
+            { id: 'tpl-h17', title: '科研项目管理', category: 'hr', type: 'template', desc: '科研院所或高校实验室的课题申报、经费管理、实验记录与成果转化管理。', author: '科研处' },
+            { id: 'tpl-h18', title: '软件用户反馈处理跟踪流程', category: 'hr', type: 'template', desc: '连接客服与研发的用户反馈处理流程，确保用户问题得到及时响应与解决。', author: '用户体验部' },
+            { id: 'tpl-h19', title: '通用反馈管理', category: 'hr', type: 'template', desc: '适用于各类场景的意见收集、投诉建议与内部反馈处理的通用模板。', author: '行政部' },
+            { id: 'tpl-h20', title: 'AI中台项目管理', category: 'hr', type: 'template', desc: 'AI 模型训练、数据标注、算法部署与算力资源调度的中台化管理模板。', author: 'AI 架构组' },
+            { id: 'tpl-h21', title: 'DSTE战略到执行管理', category: 'hr', type: 'template', desc: '闭环的战略管理体系，确保从战略意图到年度计划再到个人绩效的层层穿透。', author: '战略规划部' }
         ];
 
         // --- 组件 ---
 
-        // 1. 公用卡片组件
+        // 1. 公用卡片组件 (优化后的长描述展示)
         const ResourceCard = ({ item, layout }) => {
             const isStore = layout === 'store';
             
@@ -102,13 +205,18 @@
                             }`}></i>
                         </div>
                         <span className={`text-[10px] font-mono px-2 py-0.5 rounded border uppercase tracking-wider ${badgeClass}`}>
-                            {item.type}
+                            {item.type === 'plugin' ? 'PLUGIN' : item.type === 'solution' ? 'SOL' : 'TPL'}
                         </span>
                     </div>
                     
-                    <h3 className={`font-bold text-sm mb-1 leading-snug line-clamp-2 ${isStore ? 'text-white' : 'text-slate-800'}`}>
+                    <h3 className={`font-bold text-sm mb-2 leading-snug line-clamp-1 ${isStore ? 'text-white' : 'text-slate-800'}`} title={item.title}>
                         {item.title}
                     </h3>
+                    
+                    {/* 优化后的描述区域：增加高度以容纳两行文字 */}
+                    <p className={`text-xs mb-4 line-clamp-2 h-8 leading-relaxed ${isStore ? 'text-slate-400' : 'text-slate-500'}`} title={item.desc}>
+                        {item.desc}
+                    </p>
                     
                     <div className={`mt-auto pt-3 flex items-center justify-between border-t ${isStore ? 'border-slate-700' : 'border-slate-50'}`}>
                         <span className={`text-xs truncate max-w-[100px] ${isStore ? 'text-slate-400' : 'text-slate-400'}`}>
@@ -185,6 +293,7 @@
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                         {filteredResources.map(item => <ResourceCard key={item.id} item={item} layout="standard" />)}
                     </div>
+                    {filteredResources.length === 0 && <div className="text-center py-20 text-slate-400">暂无相关资源</div>}
                 </div>
             );
 
@@ -192,7 +301,7 @@
             const renderSidebar = () => (
                 <div className="flex h-screen bg-white overflow-hidden">
                     {/* Sidebar */}
-                    <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col">
+                    <div className="w-64 bg-slate-50 border-r border-slate-200 flex flex-col shrink-0">
                         <div className="p-6">
                             <h1 className="text-lg font-bold text-slate-800"><i className="fas fa-shapes mr-2 text-blue-600"></i>应用中心</h1>
                         </div>
@@ -222,12 +331,12 @@
                     </div>
                     {/* Main Content */}
                     <div className="flex-1 overflow-y-auto bg-white p-8">
-                        <div className="max-w-5xl">
+                        <div className="max-w-6xl mx-auto">
                             <h2 className="text-xl font-bold text-slate-800 mb-6 flex items-center">
                                 {CATEGORIES.find(c => c.id === activeCategory).label}
                                 <span className="ml-2 text-sm font-normal text-slate-400">({filteredResources.length})</span>
                             </h2>
-                            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                                 {filteredResources.map(item => <ResourceCard key={item.id} item={item} layout="sidebar" />)}
                             </div>
                         </div>
@@ -251,9 +360,9 @@
                             </div>
                         </div>
                         {/* Categories as Pills */}
-                        <div className="max-w-6xl mx-auto mt-8 flex gap-3">
+                        <div className="max-w-6xl mx-auto mt-8 flex gap-3 overflow-x-auto hide-scroll pb-2">
                             {CATEGORIES.map(cat => (
-                                <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${activeCategory === cat.id ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
+                                <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`px-4 py-2 rounded-full text-sm font-medium transition-all whitespace-nowrap ${activeCategory === cat.id ? 'bg-blue-500 text-white shadow-lg shadow-blue-500/30' : 'bg-white/5 text-slate-300 hover:bg-white/10'}`}>
                                     {cat.label}
                                 </button>
                             ))}
