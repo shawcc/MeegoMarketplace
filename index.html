@@ -12,24 +12,27 @@
     <style>
         body { font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
         .hide-scroll::-webkit-scrollbar { display: none; }
-        body { background-color: #f8fafc; } 
+        /* 背景模拟 SaaS 主界面 */
+        body { background-color: #f1f5f9; background-image: radial-gradient(#cbd5e1 1px, transparent 1px); background-size: 24px 24px; } 
         
         /* 通用动效 */
         .card-hover { transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); }
         .card-hover:hover { transform: translateY(-4px); box-shadow: 0 12px 20px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.05); }
 
-        /* Style 1: ClickUp (Minimal) */
-        .style-clickup-bg { background-color: #ffffff; }
+        /* Style 1: ClickUp (Clean Modal) */
+        .style-clickup-overlay { background-color: rgba(255, 255, 255, 0.8); backdrop-filter: blur(2px); }
+        .style-clickup-modal { background-color: #ffffff; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04); border: 1px solid #e2e8f0; }
         .style-clickup-card { border: 1px solid #e2e8f0; border-radius: 8px; }
         
-        /* Style 2: Jira (Enterprise / Dense) */
-        .style-jira-bg { background-color: #F4F5F7; } 
+        /* Style 2: Jira (Enterprise Modal) */
+        .style-jira-overlay { background-color: rgba(9, 30, 66, 0.54); }
+        .style-jira-modal { background-color: #ffffff; box-shadow: 0 0 0 1px rgba(9, 30, 66, 0.08), 0 2px 1px rgba(9, 30, 66, 0.08), 0 0 20px -6px rgba(9, 30, 66, 0.31); }
         .style-jira-sidebar { background-color: #FAFBFC; border-right: 1px solid #dfe1e6; }
         .style-jira-card { background-color: #ffffff; border: 1px solid #dfe1e6; box-shadow: 0 1px 1px rgba(9, 30, 66, 0.25); border-radius: 3px; }
 
-        /* Style 3: Monday (Vibrant Marketplace) */
-        .style-monday-bg { background-color: #F7F9FC; } 
-        /* 移除 Sidebar 相关样式，转为全宽布局 */
+        /* Style 3: Monday (Vibrant Modal) */
+        .style-monday-overlay { background-color: rgba(0, 0, 0, 0.4); backdrop-filter: blur(4px); }
+        .style-monday-modal { background-color: #f7f9fc; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25); }
         .style-monday-card { 
             background: white; 
             border: 1px solid #E6E9EF; 
@@ -41,19 +44,14 @@
             border-color: #0073EA;
             box-shadow: 0 10px 20px rgba(0,115,234,0.1);
         }
-        .monday-tag {
-            transition: all 0.2s;
-        }
-        .monday-tag:hover {
-            transform: translateY(-1px);
-        }
-        .monday-banner {
-            background: linear-gradient(120deg, #6C6CFF 0%, #FF5ACD 100%);
-        }
+        .monday-tag { transition: all 0.2s; }
+        .monday-tag:hover { background-color: #e2e8f0; color: #0f172a; }
+        .monday-tag.active { background-color: #0f172a; color: white; }
+        .monday-banner { background: linear-gradient(120deg, #6C6CFF 0%, #FF5ACD 100%); }
     </style>
 </head>
-<body class="text-slate-800">
-    <div id="root"></div>
+<body class="text-slate-800 h-screen overflow-hidden">
+    <div id="root" class="h-full"></div>
 
     <script type="text/babel">
         const React = window.React;
@@ -62,12 +60,12 @@
 
         // --- 1. 业务场景分类 (Categories) ---
         const SCENARIO_CATEGORIES = [
-            { id: 'all', label: '全部应用', icon: 'fa-th-large' },
-            { id: 'dev', label: '产研开发', icon: 'fa-code' },
-            { id: 'marketing', label: '市场运营', icon: 'fa-bullhorn' },
-            { id: 'hr', label: '行政人事', icon: 'fa-users' },
-            { id: 'sales', label: '销售客服', icon: 'fa-headset' },
-            { id: 'common', label: '通用效率', icon: 'fa-rocket' }
+            { id: 'all', label: '全部' },
+            { id: 'dev', label: '产研开发' },
+            { id: 'marketing', label: '市场运营' },
+            { id: 'hr', label: '行政人事' },
+            { id: 'sales', label: '销售客服' },
+            { id: 'common', label: '通用效率' }
         ];
 
         // --- 2. 资源类型 (Types - 下拉筛选) ---
@@ -84,6 +82,12 @@
 
         // --- 3. 全量真实数据 (90+ 条目) ---
         const ALL_RESOURCES = [
+            // === 新增：视频与演示工具 (Video Tools) ===
+            { id: 'tool-01', title: 'Screen Studio 录屏大师', category: 'marketing', type: 'lightapp', desc: '傻瓜式录屏工具，自动生成平滑缩放与鼠标动效，无需剪辑基础也能做出专业级演示视频。', author: 'Screen Studio', installs: '8.5k', icon: 'fa-video' },
+            { id: 'tool-02', title: 'Loom 视频协作', category: 'common', type: 'plugin', desc: '一键录制屏幕与人像，自动生成云端链接。用视频替代冗长的文档说明，适合快速 Feature 演示。', author: 'Loom', installs: '25k+', icon: 'fa-comment-video' },
+            { id: 'tool-03', title: 'Arcade 交互演示', category: 'marketing', type: 'lightapp', desc: '将屏幕操作转化为可交互的网页 Demo，引导用户亲手体验产品功能，转化率优于传统视频。', author: 'Arcade', installs: '6k', icon: 'fa-mouse-pointer' },
+            { id: 'tool-04', title: 'Descript 智能剪辑', category: 'marketing', type: 'lightapp', desc: '像编辑 Word 文档一样剪辑视频。删除文本即可剪掉对应画面，AI 自动消除语气词与杂音。', author: 'Descript', installs: '12k', icon: 'fa-wand-magic-sparkles' },
+
             // === 新增类型数据 (Mock) ===
             { id: 'int-01', title: 'Jira 双向同步', category: 'dev', type: 'integration', desc: '实时同步 Jira 与本平台的任务状态、评论与附件，实现无缝协作。', author: 'Atlassian', installs: '15k', icon: 'fa-sync' },
             { id: 'int-02', title: '飞书审批流集成', category: 'hr', type: 'integration', desc: '将业务系统的审批单据自动推送到飞书审批中心，统一待办入口。', author: 'Lark', installs: '8k', icon: 'fa-check-circle' },
@@ -138,16 +142,15 @@
             let iconContainerClass = "";
 
             if (style === 'clickup') {
-                cardClasses = "style-clickup-card bg-white p-4 text-slate-700 hover:border-blue-400";
+                cardClasses = "style-clickup-card bg-white p-4 text-slate-700 hover:border-blue-400 group cursor-pointer";
                 iconContainerClass = item.type === 'plugin' ? 'text-indigo-500' : 'text-blue-500';
                 btnClasses = "text-xs font-medium text-slate-500 hover:text-blue-600";
             } else if (style === 'jira') {
-                cardClasses = "style-jira-card p-3 flex flex-col h-full";
+                cardClasses = "style-jira-card p-3 flex flex-col h-full group cursor-pointer";
                 iconContainerClass = "text-slate-600"; 
                 btnClasses = "bg-slate-100 text-slate-700 px-2 py-1 rounded hover:bg-slate-200 text-xs font-bold";
             } else if (style === 'monday') {
                 cardClasses = "style-monday-card flex flex-col h-full group cursor-pointer";
-                // Monday 风格：根据类型显示不同颜色的图标背景
                 const getTypeColor = (t) => {
                     if (t === 'integration') return 'bg-purple-100 text-purple-600';
                     if (t === 'lightapp') return 'bg-pink-100 text-pink-600';
@@ -157,7 +160,7 @@
                     return 'bg-blue-100 text-blue-600';
                 };
                 iconContainerClass = getTypeColor(item.type);
-                btnClasses = "border border-slate-200 text-slate-600 px-3 py-1.5 rounded-full text-xs hover:bg-slate-50 hover:border-slate-300 font-semibold transition-colors";
+                btnClasses = "bg-slate-50 text-slate-600 px-3 py-1.5 rounded-md text-xs hover:bg-slate-100 font-semibold transition-colors";
             }
 
             return (
@@ -199,8 +202,8 @@
                                 {!item.installs && !item.users && <span>{item.author || 'Official'}</span>}
                             </div>
                             {style === 'monday' ? (
-                                <button className="text-blue-600 bg-blue-50 px-4 py-2 rounded-lg text-sm font-bold hover:bg-blue-100 transition-colors">
-                                    安装
+                                <button className="text-blue-600 bg-blue-50 px-4 py-1.5 rounded text-xs font-bold hover:bg-blue-100 transition-colors">
+                                    获取
                                 </button>
                             ) : style === 'jira' ? (
                                 <button className={btnClasses}>Install</button>
@@ -216,7 +219,7 @@
         };
 
         const MainApp = () => {
-            const [layoutStyle, setLayoutStyle] = useState('monday'); // 默认 Monday
+            const [layoutStyle, setLayoutStyle] = useState('monday'); 
             const [activeCategory, setActiveCategory] = useState('all');
             const [activeType, setActiveType] = useState('all');
             const [searchTerm, setSearchTerm] = useState('');
@@ -224,233 +227,195 @@
 
             useEffect(() => {
                 let results = ALL_RESOURCES;
-                // 类型过滤
-                if (activeType !== 'all') {
-                    results = results.filter(item => item.type === activeType);
-                }
-                // 场景/分类过滤
-                if (activeCategory !== 'all') {
-                    results = results.filter(item => item.category === activeCategory);
-                }
-                // 搜索过滤
+                if (activeType !== 'all') results = results.filter(item => item.type === activeType);
+                if (activeCategory !== 'all') results = results.filter(item => item.category === activeCategory);
                 if (searchTerm) {
                     const lower = searchTerm.toLowerCase();
-                    results = results.filter(item => 
-                        item.title.toLowerCase().includes(lower) || 
-                        item.desc.toLowerCase().includes(lower)
-                    );
+                    results = results.filter(item => item.title.toLowerCase().includes(lower) || item.desc.toLowerCase().includes(lower));
                 }
                 setFilteredResources(results);
             }, [activeCategory, activeType, searchTerm]);
 
             // Layout Switcher
             const LayoutSwitcher = () => (
-                <div className="fixed bottom-4 left-4 z-50 bg-white shadow-xl rounded-lg p-1 border border-slate-200 flex text-xs font-bold gap-1 opacity-80 hover:opacity-100 transition-opacity">
-                    <button onClick={() => setLayoutStyle('clickup')} className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-2 ${layoutStyle === 'clickup' ? 'bg-slate-800 text-white' : 'hover:bg-slate-100 text-slate-600'}`}>
-                        ClickUp
+                <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-[60] bg-white shadow-xl rounded-full p-1.5 border border-slate-200 flex text-xs font-bold gap-1 opacity-90 hover:opacity-100 transition-opacity ring-1 ring-slate-900/5">
+                    <button onClick={() => setLayoutStyle('clickup')} className={`px-4 py-2 rounded-full transition-all flex items-center gap-2 ${layoutStyle === 'clickup' ? 'bg-slate-800 text-white shadow-md' : 'hover:bg-slate-100 text-slate-600'}`}>
+                        ClickUp Modal
                     </button>
-                    <button onClick={() => setLayoutStyle('jira')} className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-2 ${layoutStyle === 'jira' ? 'bg-blue-700 text-white' : 'hover:bg-slate-100 text-slate-600'}`}>
-                        Jira
+                    <button onClick={() => setLayoutStyle('jira')} className={`px-4 py-2 rounded-full transition-all flex items-center gap-2 ${layoutStyle === 'jira' ? 'bg-blue-700 text-white shadow-md' : 'hover:bg-slate-100 text-slate-600'}`}>
+                        Jira Modal
                     </button>
-                    <button onClick={() => setLayoutStyle('monday')} className={`px-3 py-1.5 rounded-md transition-all flex items-center gap-2 ${layoutStyle === 'monday' ? 'bg-blue-500 text-white' : 'hover:bg-slate-100 text-slate-600'}`}>
-                        Monday
+                    <button onClick={() => setLayoutStyle('monday')} className={`px-4 py-2 rounded-full transition-all flex items-center gap-2 ${layoutStyle === 'monday' ? 'bg-blue-500 text-white shadow-md' : 'hover:bg-slate-100 text-slate-600'}`}>
+                        Monday Modal
                     </button>
                 </div>
             );
 
             // --- Renderers ---
 
-            // 1. ClickUp Style (Standard)
+            // 1. ClickUp Style (Standard Modal)
             const renderClickUp = () => (
-                <div className="p-8 max-w-6xl mx-auto min-h-screen style-clickup-bg">
-                    <div className="mb-6 flex justify-between items-end">
-                        <div>
-                            <h1 className="text-2xl font-bold text-slate-900">Marketplace</h1>
-                            <p className="text-slate-500 text-sm">Integrate and extend your workflow.</p>
-                        </div>
-                        <div className="flex bg-slate-100 p-1 rounded-lg">
-                             <select 
-                                value={activeType}
-                                onChange={(e) => setActiveType(e.target.value)}
-                                className="bg-transparent text-sm font-medium text-slate-700 outline-none px-2"
-                             >
-                                {RESOURCE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                             </select>
-                        </div>
-                    </div>
-                    <div className="flex border-b border-slate-200 mb-6 overflow-x-auto">
-                        {SCENARIO_CATEGORIES.map(cat => (
-                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`pb-2 px-4 text-sm font-medium border-b-2 transition-colors whitespace-nowrap ${activeCategory === cat.id ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
-                                {cat.label}
-                            </button>
-                        ))}
-                    </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                        {filteredResources.map(item => <ResourceCard key={item.id} item={item} style="clickup" />)}
-                    </div>
-                </div>
-            );
-
-            // 2. Jira Style (Sidebar Enterprise)
-            const renderJira = () => (
-                <div className="flex min-h-screen style-jira-bg font-sans">
-                    <div className="w-64 style-jira-sidebar flex flex-col shrink-0">
-                        <div className="p-4 border-b border-slate-200">
-                            <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Marketplace</h2>
-                        </div>
-                        <div className="p-2 space-y-0.5 overflow-y-auto flex-1">
-                            <div className="px-3 py-2 text-xs font-bold text-slate-500 mt-2 uppercase">分类</div>
-                            {SCENARIO_CATEGORIES.map(cat => (
-                                <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`w-full text-left px-3 py-2 text-sm rounded-sm flex items-center ${activeCategory === cat.id ? 'bg-slate-200 text-slate-900 font-medium' : 'text-slate-600 hover:bg-slate-100'}`}>
-                                    {cat.icon && <i className={`fas ${cat.icon} w-5 text-center mr-2 opacity-70`}></i>}
-                                    {cat.label}
-                                </button>
-                            ))}
-                        </div>
-                    </div>
-                    <div className="flex-1 p-6 overflow-y-auto">
-                        <div className="flex justify-between items-center mb-4">
-                             <h2 className="text-xl font-medium text-slate-800">
-                                {SCENARIO_CATEGORIES.find(c => c.id === activeCategory).label} 
-                                <span className="text-slate-500 text-sm font-normal ml-2">({filteredResources.length})</span>
-                             </h2>
-                             <select className="text-sm border border-slate-300 rounded px-2 py-1" value={activeType} onChange={e => setActiveType(e.target.value)}>
-                                {RESOURCE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
-                             </select>
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {filteredResources.map(item => <ResourceCard key={item.id} item={item} style="jira" />)}
-                        </div>
-                    </div>
-                </div>
-            );
-
-            // 3. Monday Style (Updated Immersive - No Sidebar, Tags System)
-            const renderMonday = () => (
-                <div className="min-h-screen style-monday-bg flex flex-col">
-                    {/* Top Bar */}
-                    <div className="bg-white border-b border-slate-200 px-6 py-3 flex items-center justify-between sticky top-0 z-40 shadow-sm">
-                        <div className="flex items-center gap-2">
-                            <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg">
-                                <i className="fas fa-shapes"></i>
+                <div className="fixed inset-0 style-clickup-overlay flex items-center justify-center z-50 p-4">
+                    <div className="style-clickup-modal w-full max-w-6xl h-[85vh] rounded-xl flex flex-col overflow-hidden animate-fade-in-up">
+                        {/* Minimal Header */}
+                        <div className="bg-white px-8 py-5 border-b border-slate-100 flex items-center justify-between shrink-0">
+                            <h2 className="text-xl font-bold text-slate-800">App Center</h2>
+                            <div className="flex gap-3">
+                                <div className="relative">
+                                    <i className="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                    <input type="text" placeholder="Search..." className="pl-9 pr-4 py-1.5 text-sm border border-slate-200 rounded-md focus:border-slate-400 outline-none w-48" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
+                                </div>
+                                <button className="text-slate-400 hover:text-slate-600"><i className="fas fa-times text-lg"></i></button>
                             </div>
-                            <h1 className="text-xl font-bold text-slate-800">Marketplace</h1>
                         </div>
                         
-                        {/* 综合搜索 (Center) */}
-                        <div className="flex-1 max-w-2xl mx-6 relative">
-                            <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                            <input 
-                                type="text" 
-                                placeholder="搜索应用、集成、插件或模板..." 
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="w-full pl-11 pr-4 py-2.5 bg-slate-100 border-none rounded-full text-sm focus:bg-white focus:ring-2 focus:ring-blue-500 transition-all outline-none"
-                            />
-                        </div>
+                        <div className="flex-1 flex flex-col overflow-hidden bg-white">
+                            {/* Filter Bar */}
+                            <div className="px-8 py-4 flex items-center justify-between border-b border-slate-50">
+                                <div className="flex gap-6 overflow-x-auto hide-scroll">
+                                    {SCENARIO_CATEGORIES.map(cat => (
+                                        <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`text-sm font-medium pb-1 border-b-2 transition-colors whitespace-nowrap ${activeCategory === cat.id ? 'border-slate-800 text-slate-800' : 'border-transparent text-slate-500 hover:text-slate-700'}`}>
+                                            {cat.label}
+                                        </button>
+                                    ))}
+                                </div>
+                                <select className="text-xs font-bold border border-slate-200 rounded px-2 py-1.5 text-slate-600 outline-none" value={activeType} onChange={e => setActiveType(e.target.value)}>
+                                    {RESOURCE_TYPES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                                </select>
+                            </div>
 
-                        <div className="flex items-center gap-3">
-                            <button className="text-slate-500 hover:text-blue-600 font-medium text-sm">开发者中心</button>
-                            <button className="bg-slate-900 text-white px-4 py-2 rounded-full text-sm font-bold hover:bg-slate-800">
-                                我的应用
-                            </button>
+                            {/* Content */}
+                            <div className="flex-1 overflow-y-auto p-8 bg-slate-50/30">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                    {filteredResources.map(item => <ResourceCard key={item.id} item={item} style="clickup" />)}
+                                </div>
+                            </div>
                         </div>
                     </div>
+                </div>
+            );
 
-                    <div className="flex flex-1 overflow-hidden">
-                        
-                        {/* Main Content Area (Full Width now) */}
-                        <div className="flex-1 overflow-y-auto p-6 md:p-8">
-                            <div className="max-w-7xl mx-auto">
-                                
-                                {/* 1. Categories as Tags/Pills System */}
-                                <div className="mb-8">
-                                    <div className="flex flex-wrap gap-2 items-center">
-                                        <span className="text-sm font-bold text-slate-500 mr-2">场景分类:</span>
+            // 2. Jira Style (Sidebar Enterprise Modal)
+            const renderJira = () => (
+                <div className="fixed inset-0 style-jira-overlay flex items-center justify-center z-50 p-4 sm:p-10">
+                    <div className="style-jira-modal w-full max-w-6xl h-full rounded shadow-2xl flex overflow-hidden">
+                        {/* Sidebar */}
+                        <div className="w-64 style-jira-sidebar flex flex-col shrink-0">
+                            <div className="p-5 border-b border-slate-200">
+                                <h2 className="text-sm font-bold text-slate-700 uppercase tracking-wide">Marketplace</h2>
+                            </div>
+                            <div className="p-2 space-y-0.5 overflow-y-auto flex-1">
+                                {SCENARIO_CATEGORIES.map(cat => (
+                                    <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`w-full text-left px-4 py-2.5 text-sm rounded-sm flex items-center ${activeCategory === cat.id ? 'bg-blue-50 text-blue-700 font-medium' : 'text-slate-600 hover:bg-slate-100'}`}>
+                                        {cat.label}
+                                    </button>
+                                ))}
+                            </div>
+                        </div>
+                        {/* Main */}
+                        <div className="flex-1 flex flex-col bg-white">
+                            <div className="px-8 py-5 border-b border-slate-100 flex justify-between items-center">
+                                <h2 className="text-xl font-medium text-slate-800">
+                                    {SCENARIO_CATEGORIES.find(c => c.id === activeCategory).label} 
+                                    <span className="text-slate-500 text-sm font-normal ml-2">({filteredResources.length})</span>
+                                </h2>
+                                <div className="flex gap-4 items-center">
+                                    <input type="text" placeholder="Search apps" className="border border-slate-300 rounded px-2 py-1 text-sm w-48" value={searchTerm} onChange={e=>setSearchTerm(e.target.value)} />
+                                    <button className="text-slate-500 hover:text-slate-800"><i className="fas fa-times text-lg"></i></button>
+                                </div>
+                            </div>
+                            <div className="flex-1 overflow-y-auto p-8 bg-slate-50">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                    {filteredResources.map(item => <ResourceCard key={item.id} item={item} style="jira" />)}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            );
+
+            // 3. Monday Style (Vibrant Modal - Updated)
+            const renderMonday = () => (
+                <div className="fixed inset-0 style-monday-overlay flex items-center justify-center z-50 p-4 sm:p-8">
+                    <div className="style-monday-modal w-full max-w-6xl h-[90vh] rounded-2xl flex flex-col overflow-hidden relative animate-fade-in-down">
+                        {/* Header */}
+                        <div className="bg-white px-6 py-4 flex items-center justify-between shrink-0 border-b border-slate-100">
+                            <div className="flex items-center gap-3">
+                                <div className="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center text-white text-lg shadow-sm">
+                                    <i className="fas fa-shapes"></i>
+                                </div>
+                                <h1 className="text-xl font-extrabold text-slate-800 tracking-tight">Marketplace</h1>
+                            </div>
+                            <button className="w-8 h-8 rounded-full bg-slate-50 hover:bg-slate-100 flex items-center justify-center text-slate-400 hover:text-slate-600 transition-colors">
+                                <i className="fas fa-times"></i>
+                            </button>
+                        </div>
+
+                        {/* Body */}
+                        <div className="flex-1 overflow-y-auto bg-slate-50/50">
+                            <div className="p-6 md:p-8">
+                                {/* Search & Filter */}
+                                <div className="flex flex-col sm:flex-row gap-4 mb-6">
+                                    <div className="flex-1 relative">
+                                        <i className="fas fa-search absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                                        <input 
+                                            type="text" 
+                                            placeholder="搜索应用、集成、插件或模板..." 
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="w-full pl-11 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all outline-none shadow-sm"
+                                        />
+                                    </div>
+                                    <div className="relative min-w-[160px]">
+                                        <select 
+                                            value={activeType} 
+                                            onChange={(e) => setActiveType(e.target.value)}
+                                            className="w-full appearance-none bg-white border border-slate-200 text-slate-700 py-3 pl-4 pr-10 rounded-xl text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 cursor-pointer shadow-sm"
+                                        >
+                                            {RESOURCE_TYPES.map(t => (
+                                                <option key={t.id} value={t.id}>{t.label}</option>
+                                            ))}
+                                        </select>
+                                        <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
+                                    </div>
+                                </div>
+
+                                {/* Tags */}
+                                <div className="mb-8 overflow-x-auto hide-scroll pb-1">
+                                    <div className="flex gap-2">
                                         {SCENARIO_CATEGORIES.map(cat => (
-                                            <button 
-                                                key={cat.id} 
-                                                onClick={() => setActiveCategory(cat.id)} 
-                                                className={`monday-tag px-4 py-2 rounded-full text-sm font-medium border transition-all flex items-center gap-2 ${
-                                                    activeCategory === cat.id 
-                                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md' 
-                                                    : 'bg-white text-slate-600 border-slate-200 hover:border-blue-300 hover:text-blue-600'
-                                                }`}
-                                            >
-                                                {cat.icon && <i className={`fas ${cat.icon} ${activeCategory === cat.id ? 'opacity-100' : 'opacity-70'}`}></i>}
+                                            <button key={cat.id} onClick={() => setActiveCategory(cat.id)} className={`monday-tag px-4 py-1.5 rounded-full text-xs font-bold border transition-all whitespace-nowrap ${activeCategory === cat.id ? 'active border-slate-900 shadow-md' : 'bg-white text-slate-500 border-slate-200 hover:border-slate-300'}`}>
                                                 {cat.label}
                                             </button>
                                         ))}
                                     </div>
                                 </div>
 
-                                {/* 2. Banner (Conditional) */}
+                                {/* Banner */}
                                 {activeCategory === 'all' && !searchTerm && (
-                                    <div className="monday-banner rounded-2xl p-8 mb-8 text-white shadow-lg flex items-center justify-between relative overflow-hidden">
+                                    <div className="monday-banner rounded-2xl p-8 mb-8 text-white shadow-lg flex items-center justify-between relative overflow-hidden group">
                                         <div className="relative z-10 max-w-xl">
                                             <span className="bg-white/20 text-white text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wider mb-2 inline-block">New Arrival</span>
                                             <h2 className="text-3xl font-extrabold mb-2">解锁 AI 生产力</h2>
-                                            <p className="text-white/90 mb-6">探索最新的 AI Agent 与智能节点，让自动化流程更聪明。</p>
-                                            <div className="flex gap-3">
-                                                <button className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-bold shadow-md hover:bg-blue-50 transition-colors">查看 AI 专区</button>
-                                                <button className="bg-white/10 text-white px-5 py-2.5 rounded-lg font-bold hover:bg-white/20 backdrop-blur-sm transition-colors">观看演示</button>
-                                            </div>
+                                            <p className="text-white/90 mb-6">探索最新的 AI Agent 与智能节点。</p>
+                                            <button className="bg-white text-blue-600 px-5 py-2.5 rounded-lg font-bold shadow-md hover:bg-blue-50 transition-colors">查看 AI 专区</button>
                                         </div>
-                                        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2">
-                                            <i className="fas fa-robot text-[180px] text-white opacity-20"></i>
+                                        <div className="hidden md:block absolute right-10 top-1/2 -translate-y-1/2 transition-transform duration-700 group-hover:scale-110">
+                                            <i className="fas fa-robot text-[160px] text-white opacity-20"></i>
                                         </div>
                                     </div>
                                 )}
 
-                                {/* 3. Filters & Results Header */}
-                                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-6 gap-4">
-                                    <h2 className="text-xl font-bold text-slate-800 flex items-center gap-2">
-                                        {searchTerm ? `搜索结果: "${searchTerm}"` : SCENARIO_CATEGORIES.find(c => c.id === activeCategory).label}
-                                        <span className="text-slate-400 text-sm font-normal">({filteredResources.length})</span>
+                                <div className="flex items-center justify-between mb-4">
+                                    <h2 className="text-lg font-bold text-slate-800">
+                                        {searchTerm ? '搜索结果' : (activeCategory === 'all' ? '热门推荐' : SCENARIO_CATEGORIES.find(c => c.id === activeCategory).label)}
+                                        <span className="text-slate-400 text-xs font-normal ml-2">{filteredResources.length} 个应用</span>
                                     </h2>
-
-                                    <div className="flex items-center gap-3">
-                                        <span className="text-sm text-slate-500 font-medium">应用类型:</span>
-                                        <div className="relative group">
-                                            <select 
-                                                value={activeType} 
-                                                onChange={(e) => setActiveType(e.target.value)}
-                                                className="appearance-none bg-white border border-slate-200 text-slate-700 py-2 pl-4 pr-10 rounded-lg text-sm font-bold focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-blue-400 cursor-pointer shadow-sm min-w-[140px]"
-                                            >
-                                                {RESOURCE_TYPES.map(t => (
-                                                    <option key={t.id} value={t.id}>{t.label}</option>
-                                                ))}
-                                            </select>
-                                            <i className="fas fa-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-xs pointer-events-none"></i>
-                                        </div>
-                                        
-                                        <button className="w-9 h-9 flex items-center justify-center bg-white border border-slate-200 rounded-lg text-slate-500 hover:text-blue-600 hover:border-blue-400 shadow-sm" title="排序">
-                                            <i className="fas fa-sort-amount-down"></i>
-                                        </button>
-                                    </div>
                                 </div>
 
-                                {/* 4. Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-12">
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 pb-12">
                                     {filteredResources.map(item => <ResourceCard key={item.id} item={item} style="monday" />)}
                                 </div>
-
-                                {/* Empty State */}
-                                {filteredResources.length === 0 && (
-                                    <div className="flex flex-col items-center justify-center py-20 bg-white rounded-2xl border border-dashed border-slate-200">
-                                        <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mb-4">
-                                            <i className="fas fa-search text-slate-300 text-2xl"></i>
-                                        </div>
-                                        <h3 className="text-slate-800 font-bold mb-1">未找到相关应用</h3>
-                                        <p className="text-slate-500 text-sm">尝试调整筛选条件或搜索关键词</p>
-                                        <button 
-                                            onClick={() => {setActiveType('all'); setSearchTerm('');}}
-                                            className="mt-4 text-blue-600 font-bold text-sm hover:underline"
-                                        >
-                                            清除筛选
-                                        </button>
-                                    </div>
-                                )}
                             </div>
                         </div>
                     </div>
@@ -458,7 +423,12 @@
             );
 
             return (
-                <div className="relative">
+                <div className="relative h-full">
+                    {/* 背景占位符，模拟主应用界面 */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                        <div className="text-slate-300 text-4xl font-bold opacity-20">SaaS Dashboard Background</div>
+                    </div>
+
                     <LayoutSwitcher />
                     {layoutStyle === 'clickup' && renderClickUp()}
                     {layoutStyle === 'jira' && renderJira()}
